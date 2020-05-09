@@ -56,5 +56,3 @@ def commentExtract(videoId, count = -1):
 
    print ()
    return comments
-
-print(len(commentExtract('VHmAwDlHqWI')))
