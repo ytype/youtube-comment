@@ -1,5 +1,8 @@
-from main import app
+import sys, os
+testPath = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, testPath + '/../app')
 
+from main import app
 client = app.test_client()
 
 def test_index():
