@@ -1,4 +1,4 @@
-# code from https://medium.com/@jjeaby/youtube-data-api-%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-commnet-text-%EA%B0%80%EC%A0%B8%EC%98%A4%EA%B8%B0-9fa6de6d7da6
+# Base code from https://medium.com/@jjeaby/youtube-data-api-%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-commnet-text-%EA%B0%80%EC%A0%B8%EC%98%A4%EA%B8%B0-9fa6de6d7da6
 
 import lxml
 import requests
@@ -14,45 +14,48 @@ YOUTUBE_LINK = 'https://www.googleapis.com/youtube/v3/commentThreads?part=snippe
 load_dotenv(verbose=True)
 key = os.getenv("YOTUBE_API_KEY")
    
+def getYoutube(_videoId, _pageToken=None):
+   status_code = 0
+   cnt = 0
+   while (status_code!= 200 and cnt<5):
+      if (_pageToken == None):
+         page_info = requests.get(YOUTUBE_LINK.format(videoId = _videoId, key = key))
+      else:
+         page_info = requests.get(YOUTUBE_IN_LINK.format(videoId = _videoId, key = key, pageToken = _pageToken))
+      status_code = page_info.status_code
+      time.sleep(5)
+      cnt += 1
+   if status_code == 200:
+      return page_info
+   else:
+      if (_pageToken == None):
+         raise Exception('status code not 200')
+      else:
+         raise Exception('next page status code not 200')
+
 def commentExtract(videoId, count = -1):
-   print ("Comments downloading")
-   page_info = requests.get(YOUTUBE_LINK.format(videoId = videoId, key = key))
-   while page_info.status_code != 200:
-      if page_info.status_code != 429:
-         print ("Comments disabled")
-         sys.exit()
-
-      time.sleep(20)
-      page_info = requests.get(YOUTUBE_LINK.format(videoId = videoId, key = key))
-
+   page_info = getYoutube(videoId)
    page_info = page_info.json()
-
    comments = []
-   co = 0;
+   cnt = 0
    for i in range(len(page_info['items'])):
       comments.append(page_info['items'][i]['snippet']['topLevelComment']['snippet']['textOriginal'])
-      co += 1
-      if co == count:
-         print ()
+      cnt += 1
+      if cnt == count:
          return comments
 
-   # INFINTE SCROLLING
    while 'nextPageToken' in page_info:
-      temp = page_info
-      page_info = requests.get(YOUTUBE_IN_LINK.format(videoId = videoId, key = key, pageToken = page_info['nextPageToken']))
-
-      while page_info.status_code != 200:
-         time.sleep(20)
-         page_info = requests.get(YOUTUBE_IN_LINK.format(videoId = videoId, key = key, pageToken = temp['nextPageToken']))
+      page_info = getYoutube(videoId, page_info['nextPageToken'])
       page_info = page_info.json()
+      page_info_len = len(page_info['items'])
 
-      for i in range(len(page_info['items'])):
+      for i in range(page_info_len):
          comments.append(page_info['items'][i]['snippet']['topLevelComment']['snippet']['textOriginal'])
-         co += 1
-         if co == count:
-
-            print ()
+         cnt += 1
+         if cnt == count:
             return comments
 
-   print ()
    return comments
+
+if __name__ == "__main__":
+   print(commentExtract('XoH9jzblxKQ'))
