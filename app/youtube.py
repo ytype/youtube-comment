@@ -13,7 +13,9 @@ YOUTUBE_LINK = 'https://www.googleapis.com/youtube/v3/commentThreads?part=snippe
 
 load_dotenv(verbose=True)
 key = os.getenv("YOTUBE_API_KEY")
-   
+if(key==None):
+   raise Exception('youtube api key is null')
+
 def getYoutube(_videoId, _pageToken=None):
    status_code = 0
    cnt = 0
