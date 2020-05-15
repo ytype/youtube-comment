@@ -4,9 +4,13 @@ import lxml
 import requests
 import time
 import sys
+import re
 
 from dotenv import load_dotenv
 import os
+
+from konlpy.tag import Hannanum
+import pandas as pd
 
 YOUTUBE_IN_LINK = 'https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&maxResults=100&order=relevance&pageToken={pageToken}&videoId={videoId}&key={key}'
 YOUTUBE_LINK = 'https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&maxResults=100&order=relevance&videoId={videoId}&key={key}'
@@ -59,5 +63,33 @@ def commentExtract(videoId, count = -1):
 
    return comments
 
+def preTexts(comments, videoId):
+   hannanum = Hannanum()
+   main = pd.Series()
+
+   for text in comments:
+      text = re.sub('[0-9]+', '', text)
+      text = re.sub('[A-Za-z]+', '', text)
+      text = re.sub('[^\w\s]', '',text)
+      text = text.replace('\n','')
+      text = text.replace('\t','')
+      text = text.replace('\r','')
+      text = text.replace('ㅋ','')
+      text = text.replace('ㄹㅇ','')
+      text = text.replace('ㄷㄷ','')
+      text = text.replace('ㅎ','')
+      text = text.strip()
+      text_list = hannanum.nouns(text)
+      main = main.append(pd.Series(text_list))
+
+   #main = main.reset_index()
+
+   
+   dir = os.path.dirname(os.path.abspath(__file__))
+   main.to_csv(f'{dir}/data/{videoId}.csv')
+   result = main.value_counts().head(20)
+   print(result)
+
 if __name__ == "__main__":
-   print(commentExtract('XoH9jzblxKQ'))
+   comments = commentExtract('e2Lo2j7mv_A')
+   preTexts(comments, 'e2Lo2j7mv_A')

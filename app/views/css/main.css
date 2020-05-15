@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300&display=swap');
+
+html {
+    overflow: hidden;
+}
+
+.hero {
+    background: rgb(255,195,160);
+    background: linear-gradient(90deg, rgba(255,195,160,1) 0%, rgba(255,111,137,1) 100%);
+}
+
+.container .title {
+    font-family: 'Titillium Web', sans-serif;
+    color: white;
+    text-shadow: 2px 2px 2px gray;
+}
+
+.description {
+    font-family: 'Noto Sans KR', sans-serif;
+    color: white;
+    text-shadow: 2px 2px 2px gray;
+}
+
+input::placeholder {
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+.url {
+    width: 80% !important;
+}
+
+input, button{
+    margin:0;
+}
