@@ -5,6 +5,7 @@ import requests
 import time
 import sys
 import re
+from wordcloud import WordCloud
 
 from dotenv import load_dotenv
 import os
@@ -63,33 +64,52 @@ def commentExtract(videoId, count = -1):
 
    return comments
 
+def processText(text):
+   hangul = re.compile('[^ ㄱ-ㅣ가-힣]+')
+   result = hangul.sub('', text)
+   result = result.replace('ㅋ', '')
+   result = result.replace('ㅎ', '')
+   result = result.strip()
+   return result
+
 def preTexts(comments, videoId):
    hannanum = Hannanum()
    main = pd.Series()
-
    for text in comments:
-      text = re.sub('[0-9]+', '', text)
-      text = re.sub('[A-Za-z]+', '', text)
-      text = re.sub('[^\w\s]', '',text)
-      text = text.replace('\n','')
-      text = text.replace('\t','')
-      text = text.replace('\r','')
-      text = text.replace('ㅋ','')
-      text = text.replace('ㄹㅇ','')
-      text = text.replace('ㄷㄷ','')
-      text = text.replace('ㅎ','')
-      text = text.strip()
+      text = processText(text)
       text_list = hannanum.nouns(text)
       main = main.append(pd.Series(text_list))
-
-   #main = main.reset_index()
-
    
    dir = os.path.dirname(os.path.abspath(__file__))
    main.to_csv(f'{dir}/data/{videoId}.csv')
-   result = main.value_counts().head(20)
-   print(result)
+   result = main.value_counts().to_list()
+   idx_result = main.value_counts().index.to_list()
+   loop = 30
+   if(pd.DataFrame(result).shape[0]<loop):
+      loop = result.shape[0]
+
+   ret = []
+   for i in range(loop):
+      ret.append([idx_result[i],result[i]])
+
+   #result.to_csv(f'{dir}/data/comm{videoId}.csv')
+   return ret
+
+def wordCloud(text, videoId):
+   wc = WordCloud(font_path='asset/NanumSquareL.ttf', \
+      background_color="white", \
+      width=1000, \
+      height=1000, \
+      max_words=100, \
+      max_font_size=300).generate_from_frequencies(dict(text))
+   wc.to_file(f'app/static/images/{videoId}.png')
+
+def youtube_main(videoId):
+   comments = commentExtract(videoId)
+   text = (preTexts(comments, videoId))
+   wordCloud(text,videoId)
 
 if __name__ == "__main__":
    comments = commentExtract('e2Lo2j7mv_A')
-   preTexts(comments, 'e2Lo2j7mv_A')
+   text = (preTexts(comments, 'e2Lo2j7mv_A'))
+   wordCloud(text,"e2Lo2j7mv_A")

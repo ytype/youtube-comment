@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/spacing.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.2/css/bulma.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.2/dist/vue.js" ></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <title>youtube comment</title>
+  </head>
+  <body>
+    <div id="app">
+        <section class="hero is-fullheight">
+            <div class="hero-body">
+              <div class="container">
+                <h1 class="title has-text-centered">
+                    Youtube Comment
+                </h1>
+                <div class="subtitle has-text-centered">
+                  <p class="description">
+                    유튜브 댓글을 가져와서 워드클라우드를 그리는 서비스입니다.
+                  </p>
+                  <form action="/youtube" method="POST">
+                    <input name="id" style="border:none" class="input is-rounded m-t-lg url" placeholder="https://www.youtube.com/watch?v=..."/>
+                    <button type="submit" class="m-t-lg button">go</button>
+                  </form>
+                    
+                  </div>
+              </div>
+            </div>
+          </section>
+    </div>
+
+ 
+  </body>
+</html>
